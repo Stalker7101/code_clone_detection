@@ -1,0 +1,7 @@
+pandas
+gensim
+scikit-learn
+jupyter
+#tensorflow-gpu
+keras
+
