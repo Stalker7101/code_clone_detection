@@ -6,13 +6,13 @@ import os
 from gensim.models import KeyedVectors as word2vec
 import sys
 
-vectors_text_path = '../data/target_vecs.txt'
-all_funcs_data_path = '../data/bcb_funcs_all.tsv'
-parser_path = '../data/java.so'
+# vectors_text_path = '../data/target_vecs.txt'
+# all_funcs_data_path = '../data/bcb_funcs_all.tsv'
+# parser_path = '../data/java.so'
 
 
 def process(all_funcs_data_path, parser_path, vectors_text_path, output_path):
-    print("lading functions")
+    print("loading functions")
     all_funcs = pd.read_csv(all_funcs_data_path, delimiter="\t", header=None)
 
     print("preparing parser")

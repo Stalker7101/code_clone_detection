@@ -1,3 +1,5 @@
+import glob
+import random
 from typing import List
 import os
 
@@ -26,15 +28,28 @@ class CloneDataset(Dataset):
 
     @property
     def processed_file_names(self):
-        return ['data_{}.pt'.format(i) for i in range(len(self.pair_ids))]
+
+        processed_file_names = []
+
+        for idx in range(len(self.pair_ids)):
+            path = os.path.join(self.processed_dir, 'data_{}.pt'.format(idx))
+            if os.path.exists(path):
+                processed_file_names.append('data_{}.pt'.format(idx))
+
+        if len(processed_file_names) < 10:
+            return ['data_{}.pt'.format(idx) for idx in range(len(self.pair_ids))]
+
+        return processed_file_names
 
     def process(self):
+
+        global apply
 
         with open(self.pairs_path, 'rb') as f:
             pair_ids = pickle.load(f).to_numpy()
 
-        i = 0
-        for id1, id2, label in tqdm.tqdm(pair_ids):
+        def apply(in_):
+            i, (id1, id2, label) = in_
             try:
                 with open(os.path.join(self.functions_path, str(id1)), 'rb') as f:
                     g1: nx.DiGraph = pickle.load(f)
@@ -42,7 +57,7 @@ class CloneDataset(Dataset):
                     g2: nx.DiGraph = pickle.load(f)
             except FileNotFoundError as ex:
                 print(ex)
-                continue
+                return
 
             g3 = nx.compose(g1, g2)
 
@@ -51,18 +66,25 @@ class CloneDataset(Dataset):
             data: Data = get_data_from_graph(g3, y=y)
 
             if self.pre_filter is not None and not self.pre_filter(data):
-                continue
+                return
 
             if self.pre_transform is not None:
                 data = self.pre_transform(data)
 
             torch.save(data, os.path.join(self.processed_dir, 'data_{}.pt'.format(i)))
-            self.processed_file_names.append('data_{}.pt'.format(i))
-            i += 1
+
+        from multiprocessing import Pool
+        with Pool(40) as p:
+            p.map(apply, enumerate(pair_ids))
 
     def len(self):
         return len(self.processed_file_names)
 
     def get(self, idx):
-        data = torch.load(os.path.join(self.processed_dir, 'data_{}.pt'.format(idx)))
+        path = os.path.join(self.processed_dir, 'data_{}.pt'.format(idx))
+
+        if not os.path.exists(path):
+            path = random.choice(glob.glob(os.path.join(self.processed_dir, "data_*.pt")))
+
+        data = torch.load(path)
         return data
