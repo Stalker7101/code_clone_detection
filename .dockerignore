@@ -1,1 +1,6 @@
-data/*.txt
+data/
+*/data/
+/data/bcb_funcs_all.tsv
+/data/bcb_pair_ids.pkl
+/astnn/data/
+/astnn/clone/data/
