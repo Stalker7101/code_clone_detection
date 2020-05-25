@@ -116,6 +116,7 @@ def get_data_from_graph(g: nx.DiGraph, y=None) -> Data:
         x = torch.tensor(graph_spicy.data, dtype=torch.float)
 
     if not y is None:
+        y = int(y)
         y = torch.tensor([y], dtype=torch.int64)
 
     data = Data(x=x, edge_index=edge_index, y=y)
