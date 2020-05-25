@@ -24,7 +24,7 @@ class FastCloneDataset(Dataset):
         if idx in self.functions:
             return self.functions[idx]
 
-        g = nx.read_gpickle(os.path.join(self.functions_path,str(idx)))
+        g = nx.read_gpickle(os.path.join(self.functions_path, str(idx)))
 
         if self.return_pair_data:
             self.functions[idx] = get_data_from_graph(g)
@@ -38,15 +38,23 @@ class FastCloneDataset(Dataset):
             return self.processed_pairs[idx]
 
         id1, id2, label = self.pairs[idx]
-        data1, data2  = self.load_id(id1), self.load_id(id2)
+        data1, data2 = self.load_id(id1), self.load_id(id2)
         if self.return_pair_data:
-            data = PairData(edge_index_s=data1.edge_index, x_s=data1.x, edge_index_t=data2.edge_index, x_t=data2.x, y=torch.tensor([label], dtype=torch.int64))
+            data = PairData(edge_index_s=data1.edge_index, x_s=data1.x, edge_index_t=data2.edge_index, x_t=data2.x,
+                            y=torch.tensor([label], dtype=torch.int64))
             self.processed_pairs[idx] = data
         else:
-            data = nx.compose(data1, data2)
-            self.processed_pairs[idx] = get_data_from_graph(data, label)
+            g1, g2 = data1, data2
+            g3 = nx.union(g1, g2, rename=("s_", "t_"))
+            for node1 in g1.nodes(data=True):
+                for node2 in g2.nodes(data=True):
+                    if node1[1]['idx'] == node2[1]['idx']:
+                        g3.add_edge("s_" + str(node1[0]), "t_" + str(node2[0]))
 
-        return  self.processed_pairs[idx]
+            g3 = nx.convert_node_labels_to_integers(g3.to_undirected())
+            self.processed_pairs[idx] = get_data_from_graph(g3, label)
+
+        return self.processed_pairs[idx]
 
     def get(self, idx):
         return self.get_pair(idx)
@@ -138,7 +146,6 @@ class PairData(Data):
         self.y = y
         super(PairData, self).__init__(y=y)
 
-
     def __inc__(self, key, value):
         if key == 'edge_index_s':
             return self.x_s.size(0)
@@ -194,7 +201,8 @@ class CloneDatasetPair(Dataset):
 
             data1: Data = get_data_from_graph(g1, y=label)
             data2: Data = get_data_from_graph(g2, y=label)
-            data = PairData(edge_index_s=data1.edge_index, x_s=data1.x, edge_index_t=data2.edge_index, x_t=data2.x, y=data2.y)
+            data = PairData(edge_index_s=data1.edge_index, x_s=data1.x, edge_index_t=data2.edge_index, x_t=data2.x,
+                            y=data2.y)
 
             if self.pre_filter is not None and not self.pre_filter(data):
                 return
