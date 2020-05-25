@@ -45,11 +45,11 @@ class FastCloneDataset(Dataset):
             self.processed_pairs[idx] = data
         else:
             g1, g2 = data1, data2
-            g3 = nx.union(g1, g2, rename=("s_", "t_"))
-            for node1 in g1.nodes(data=True):
-                for node2 in g2.nodes(data=True):
-                    if node1[1]['idx'] == node2[1]['idx']:
-                        g3.add_edge("s_" + str(node1[0]), "t_" + str(node2[0]))
+            g3 = nx.disjoint_union(g1, g2)
+            # for node1 in g1.nodes(data=True):
+            #     for node2 in g2.nodes(data=True):
+            #         if node1[1]['idx'] == node2[1]['idx']:
+            #             g3.add_edge("s_" + str(node1[0]), "t_" + str(node2[0]))
 
             g3 = nx.convert_node_labels_to_integers(g3.to_undirected())
             self.processed_pairs[idx] = get_data_from_graph(g3, label)

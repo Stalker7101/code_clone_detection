@@ -8,4 +8,5 @@ networkx
 matplotlib
 pygraphviz
 javalang==0.11.0
+pytorch_lightning
 

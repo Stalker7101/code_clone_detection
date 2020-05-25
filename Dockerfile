@@ -15,6 +15,7 @@ RUN pip install torch-sparse==latest+cu101 -f https://pytorch-geometric.com/whl/
 RUN pip install torch-cluster==latest+cu101 -f https://pytorch-geometric.com/whl/torch-1.5.0.html
 RUN pip install torch-spline-conv==latest+cu101 -f https://pytorch-geometric.com/whl/torch-1.5.0.html
 RUN pip install torch-geometric
+RUN pip install dgl-cu101
 
 WORKDIR /app
 
