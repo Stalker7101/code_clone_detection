@@ -25,6 +25,6 @@ Reference links:
     - GraphConv(AST merged by tokes and thier location) + TopKPooling: 0.84
 - FastText
     - GraphConv(AST merged by their structure)  + TopKPooling: 0.84
-    - GraphConv(Disjoint AST)  + TopKPooling: underway
+    - GraphConv(Disjoint AST)  + TopKPooling: 0.87
     - Siamese of (GraphConv+TopKPooling): 0.90
  
