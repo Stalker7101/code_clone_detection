@@ -1,5 +1,4 @@
-FROM pytorch/pytorch:1.5-cuda10.1-cudnn7-devel
-
+FROM pytorch/pytorch:2.3.1-cuda11.8-cudnn8-devel
 RUN apt-get update
 
 # installing graphviz is a pain in the ass
@@ -10,12 +9,12 @@ ADD requirements.txt /tmp
 RUN pip install -r /tmp/requirements.txt
 
 # install pytorch geometric and dependencies
-RUN pip install torch-scatter==latest+cu101 -f https://pytorch-geometric.com/whl/torch-1.5.0.html
-RUN pip install torch-sparse==latest+cu101 -f https://pytorch-geometric.com/whl/torch-1.5.0.html
-RUN pip install torch-cluster==latest+cu101 -f https://pytorch-geometric.com/whl/torch-1.5.0.html
-RUN pip install torch-spline-conv==latest+cu101 -f https://pytorch-geometric.com/whl/torch-1.5.0.html
+RUN pip install torch-scatter
+RUN pip install torch-sparse
+RUN pip install torch-cluster
+RUN pip install torch-spline-conv
 RUN pip install torch-geometric
-RUN pip install dgl-cu101
+RUN pip install dgl
 
 WORKDIR /app
 
